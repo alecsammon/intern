@@ -50,11 +50,23 @@ else {
 
 				// Most loaders expose `require.config` for configuration, but the Dojo 1 loader does not
 				(require.config || require)(this.__internConfig);
-				(require.config || require)(config.loader);
 
-				require([ parentRequire.toAbsMid('./lib/realClient') ], function (realClient) {
-					realClient.run(args, config);
-				});
+				if(config.loader.mainConfigFile) {
+					require([config.loader.mainConfigFile], function () {
+						// load this after the mainConfig file so we can overrite
+                                		(require.config || require)(config.loader);
+
+                                		require([ parentRequire.toAbsMid('./lib/realClient') ], function (realClient) {
+                                        		realClient.run(args, config);
+                                		});
+					});
+				} else {
+                                	(require.config || require)(config.loader);
+
+                                	require([ parentRequire.toAbsMid('./lib/realClient') ], function (realClient) {
+                                        	realClient.run(args, config);
+                                	});
+				}
 			}, function (error) {
 				console.error(error);
 			});
